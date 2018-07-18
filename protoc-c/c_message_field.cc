@@ -94,7 +94,7 @@ void MessageFieldGenerator::GenerateStructMembers(io::Printer* printer) const
       break;
     case FieldDescriptor::LABEL_REPEATED:
       printer->Print(vars, "size_t n_$name$$deprecated$;\n");
-      printer->Print(vars, "$type$ **$name$$deprecated$;\n");
+      printer->Print(vars, "$type$ *$name$$deprecated$;\n");
       break;
   }
 }

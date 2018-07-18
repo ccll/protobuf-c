@@ -1233,9 +1233,9 @@ unlabeled_field_pack(const ProtobufCFieldDescriptor *field,
  *      Size of the field.
  */
 static inline size_t
-sizeof_elt_in_repeated_array(ProtobufCType type)
+sizeof_elt_in_repeated_array(const ProtobufCFieldDescriptor *field)
 {
-	switch (type) {
+	switch (field->type) {
 	case PROTOBUF_C_TYPE_SINT32:
 	case PROTOBUF_C_TYPE_INT32:
 	case PROTOBUF_C_TYPE_UINT32:
@@ -1254,8 +1254,10 @@ sizeof_elt_in_repeated_array(ProtobufCType type)
 	case PROTOBUF_C_TYPE_BOOL:
 		return sizeof(protobuf_c_boolean);
 	case PROTOBUF_C_TYPE_STRING:
-	case PROTOBUF_C_TYPE_MESSAGE:
-		return sizeof(void *);
+	case PROTOBUF_C_TYPE_MESSAGE: {
+		const ProtobufCMessageDescriptor* message_desc = (const ProtobufCMessageDescriptor*)field->descriptor;
+		return message_desc->sizeof_message;
+	}
 	case PROTOBUF_C_TYPE_BYTES:
 		return sizeof(ProtobufCBinaryData);
 	}
@@ -1446,7 +1448,7 @@ repeated_field_pack(const ProtobufCFieldDescriptor *field,
 		/* not "packed" cased */
 		/* CONSIDER: optimize this case a bit (by putting the loop inside the switch) */
 		size_t rv = 0;
-		unsigned siz = sizeof_elt_in_repeated_array(field->type);
+		unsigned siz = sizeof_elt_in_repeated_array(field);
 
 		for (i = 0; i < count; i++) {
 			rv += required_field_pack(field, array, out + rv);
